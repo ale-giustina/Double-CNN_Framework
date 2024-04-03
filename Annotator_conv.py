@@ -58,4 +58,9 @@ if create_images:
             im1 = plt.imshow(img, cmap=plt.cm.gray, alpha=0.5)
             plt.show()
         
+        #needed if the rotation metadata i squed
+        if int(i[1][1])==4000:
+            #rotate the image
+            img = cv2.rotate(img, cv2.ROTATE_90_COUNTERCLOCKWISE)
+
         cv2.imwrite('Dataset/annotated/'+'ann_'+i[0], img)
