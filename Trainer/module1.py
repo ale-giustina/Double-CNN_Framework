@@ -25,6 +25,9 @@ class CustomImageDataset(Dataset):
         image = read_image(img_path).type(torch.float)
         label_path = os.path.join(self.labels_dir, "ann_"+self.imlist[idx])
         label = read_image(label_path).type(torch.float)
+        #convert image and label to float
+        image = image/255
+        label = (label-255/2)/(255/2)
 
         if self.transform:
             image = self.transform(image)
@@ -32,30 +35,35 @@ class CustomImageDataset(Dataset):
             label = self.target_transform(label)
 
         return image, label #convert to float from unit8
+
 #TODO: NORMALIZE THE DATAAAAAAAAAAAAAAAAA
 
 class CNNet(nn.Module):
     def __init__(self):
         super(CNNet, self).__init__()
                 
-        self.conv1 = nn.Conv2d(3, 25, kernel_size=9, stride=1, padding=4)
+        self.conv1 = nn.Conv2d(3, 10, kernel_size=25, stride=1, padding=12)
         self.relu1 = nn.LeakyReLU(inplace=True)
-        self.conv2 = nn.Conv2d(25, 15, kernel_size=5, stride=1, padding=2)
+        self.conv2 = nn.Conv2d(10, 35, kernel_size=11, stride=1, padding=5)
         self.relu2 = nn.LeakyReLU(inplace=True)
-        self.conv3 = nn.Conv2d(15, 1, kernel_size=1, stride=1)
+        self.conv3 = nn.Conv2d(35, 20, kernel_size=5, stride=1, padding=2)
         self.relu3 = nn.LeakyReLU(inplace=True)
+        self.conv4 = nn.Conv2d(20, 1, kernel_size=1, stride=1)
+        self.relu4 = nn.LeakyReLU(inplace=True)
         
         self.steps = 0
         self.epochs = 0
         self.best_valdiation_loss = math.inf
-
+        self.totalepoch = 0
     def forward(self, x):
         x = self.conv1(x)
         x = self.relu1(x)
         x = self.conv2(x)
         x = self.relu2(x)
         x = self.conv3(x)
-        density_map = self.relu3(x)
+        x = self.relu3(x)
+        x = self.conv4(x)
+        density_map = self.relu4(x)
                 
         if self.training:
             self.steps += 1
@@ -91,11 +99,20 @@ def calculate_loss_and_accuracy(validation_loader, model, criterion,example_imag
         input_example = example_image[0]
         label_example = example_image[1]
         #create a matplotlib plot
-        fig, ax = plt.subplots(1,3)
-        ax[0].imshow(np.transpose(input_example,(1,2,0)).numpy().astype(np.uint8))
-        ax[1].imshow(np.transpose(output_example,(1,2,0)))
-        ax[2].imshow(np.transpose(label_example,(1,2,0)))
-        plt.show()
+        fig, ax = plt.subplots(2,2)
+        
+        ax[0][0].imshow(np.transpose(input_example,(1,2,0)))
+        
+        ax1=ax[1][0].imshow(np.transpose(output_example,(1,2,0)))
+        fig.colorbar(ax1, ax=ax[1][0])
+        
+        ax2=ax[0][1].imshow(np.transpose(output_example,(1,2,0)) > 0)
+        fig.colorbar(ax2, ax=ax[0][1])
+        
+        ax[1][1].imshow(np.transpose(label_example,(1,2,0)))
+        
+        
+        #plt.show()
         plt.savefig('examples/{}.png'.format(epoch), dpi=800)
         plt.close(fig)
 

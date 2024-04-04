@@ -16,15 +16,14 @@ writer = SummaryWriter()
 device=torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 print(device)
 
-batch_size = 5
-steps_before_print = 20
-showexample = 4
+batch_size = 7
+showexample = 6
 
-transform = T.Compose([T.Resize((1080, 1920))])
+imsize = (720,1280)
 
-transform1 = T.Compose([T.Resize((1080, 1920))])
+transform = T.Compose([T.Resize(imsize,antialias=True)])
 
-#TODO: Normalize the data well
+transform1 = T.Compose([T.Resize(imsize,antialias=True)])
 
 dataset = m1.CustomImageDataset("Dataset/annotated", "Dataset/Train",transform=transform, target_transform=transform1)
 
@@ -40,13 +39,13 @@ if showexample != 0:
 
     image1 = np.transpose(dataset.__getitem__(showexample)[0], (1, 2, 0))
     label1 = np.transpose(dataset.__getitem__(showexample)[1], (1, 2, 0))
+    for i in range(1):
+        print("Image:",dataset.__getitem__(showexample)[i].shape,"maxval:",np.max(dataset.__getitem__(showexample)[i].detach().numpy()),"minval:",np.min(dataset.__getitem__(showexample)[0].detach().numpy()))
 
-    print(dataset.__getitem__(showexample)[0].shape)
-    print(dataset.__getitem__(showexample)[1].shape)
 
     fig, axs = plt.subplots(1, 2)  # 1 row, 2 columns
 
-    axs[0].imshow(image1.numpy().astype(np.uint8))
+    axs[0].imshow(image1)
     axs[0].set_title('Image 1')
 
     axs[1].imshow(label1)
@@ -66,18 +65,20 @@ costval = []
 
 dataiter = iter(dataloader)
 
+steps_before_print = len(dataloader)
+
 lis, labels = next(dataiter)
 
 writer.add_graph(model, lis.to(device))
 
 def train(epochs):
-    
+
     for epoch in range(epochs):
         
         step = 0
         epoch_loss = 0
         epoch_acc = 0
-        times_calculated = 0
+        
         total_size = len(dataloader)
         
         for i, (images, labels) in enumerate(dataloader):
@@ -104,11 +105,9 @@ def train(epochs):
                 # Calculate Accuracy
                 model.eval()
 
-                validation_loss = m1.calculate_loss_and_accuracy(validataloader, model, criterion, dataset.__getitem__(5),epoch)
+                validation_loss = m1.calculate_loss_and_accuracy(validataloader, model, criterion, dataset.__getitem__(5),model.totalepoch)
                 writer.add_scalar('validation_loss', validation_loss, model.steps)
 
-                times_calculated += 1
-                
                 # Print Loss
                 print('Iteration: {}/{} - ({:.2f}%). Validation Loss: {}. '.format(step, total_size, step*100/total_size , validation_loss))
                 
@@ -122,17 +121,17 @@ def train(epochs):
             del loss, outputs, images, labels
 
         model.epochs += 1
-
+        model.totalepoch += 1
         #print('Epoch({}) avg loss: {} avg acc: {}'.format(epoch, epoch_loss/step, epoch_acc/times_calculated))
         print('Epoch ', epoch)
         #save_model(model, use_ts=True)
 
-learning_rate = 0.00001
+learning_rate = 0.1
 optimizer = torch.optim.SGD(model.parameters(), lr=learning_rate, momentum=0.9)
-train(50)
-learning_rate = 0.0001
+train(40)
+learning_rate = 0.01
 optimizer = torch.optim.SGD(model.parameters(), lr=learning_rate, momentum=0.9)
-train(20)
-learning_rate = 0.00001
+train(30)
+learning_rate = 0.001
 optimizer = torch.optim.SGD(model.parameters(), lr=learning_rate, momentum=0.9)
 train(20)
