@@ -45,12 +45,12 @@ if savetotext:
     with open('Dataset/annotations.txt', 'w') as f:
         for i in data:
             f.write(i[0] + " " + str(i[1]) + " " + str(i[2]) +"\n")
-
+const=5
 if create_images:
     for i in data:
         img = np.zeros((int(i[1][1]), int(i[1][0])), np.uint8)
         for x in i[2]:
-            img = cv2.ellipse(img, (int(x[0]), int(x[1])), (int(x[2]), int(x[3])), 0, 0, 360, 255, -1)
+            img = cv2.ellipse(img, (int(x[0]), int(x[1])), (int(x[2]/const), int(x[3]/const)), 0, 0, 360, 255, -1)
         if show_images:
             im2=cv2.imread(find(i[0], 'Dataset'))
             fig = plt.figure(frameon=False)

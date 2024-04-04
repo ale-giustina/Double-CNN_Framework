@@ -10,7 +10,6 @@ import os
 import cv2
 import matplotlib.pyplot as plt
 
-
 writer = SummaryWriter()
 
 device=torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
@@ -128,10 +127,10 @@ def train(epochs):
 
 learning_rate = 0.1
 optimizer = torch.optim.SGD(model.parameters(), lr=learning_rate, momentum=0.9)
-train(40)
-learning_rate = 0.01
+train(70)
+learning_rate = 0.03
 optimizer = torch.optim.SGD(model.parameters(), lr=learning_rate, momentum=0.9)
-train(30)
+train(40)
 learning_rate = 0.001
 optimizer = torch.optim.SGD(model.parameters(), lr=learning_rate, momentum=0.9)
-train(20)
+train(30)
