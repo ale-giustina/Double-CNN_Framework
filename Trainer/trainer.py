@@ -104,7 +104,7 @@ def train(epochs):
                 # Calculate Accuracy
                 model.eval()
 
-                validation_loss = m1.calculate_loss_and_accuracy(validataloader, model, criterion, dataset.__getitem__(5),model.totalepoch)
+                validation_loss = m1.calculate_loss_and_accuracy(validataloader, model, criterion, validataset.__getitem__(5),model.totalepoch)
                 writer.add_scalar('validation_loss', validation_loss, model.steps)
 
                 # Print Loss
@@ -125,12 +125,16 @@ def train(epochs):
         print('Epoch ', epoch)
         #save_model(model, use_ts=True)
 
+#create a log to dump the model characteristics
+with open('examples/log.txt', 'w') as f:
+    f.write(str(model.charateristics))
+
 learning_rate = 0.1
 optimizer = torch.optim.SGD(model.parameters(), lr=learning_rate, momentum=0.9)
 train(70)
 learning_rate = 0.03
 optimizer = torch.optim.SGD(model.parameters(), lr=learning_rate, momentum=0.9)
-train(40)
+train(70)
 learning_rate = 0.001
 optimizer = torch.optim.SGD(model.parameters(), lr=learning_rate, momentum=0.9)
-train(30)
+train(50)
