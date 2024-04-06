@@ -13,7 +13,7 @@ def find(name, path):
 
 
 #set to True to save the data to a text file
-savetotext = True
+savetotext = False
 
 xml_filepath = 'Dataset/annotations.xml'
 
@@ -23,15 +23,26 @@ img_filepath_train = 'Dataset/Train'
 
 ann_filepath = 'Dataset/annotated'
 
-create_images = True
+create_images = False
 
 show_images = False
 
-create_duplicates = False
+create_duplicates = True
 
-duplicates = 15
+duplicates = 500
 
-show_duplicates = True
+show_duplicates = False
+
+save_duplicates = True
+
+change_size = True
+change_rotation = True
+change_luminosity = False   #TODO:implement
+change_contrast = False     #TODO:implement
+
+exp_train = "Dataset/expansion/train_expanded"
+
+exp_ann = "Dataset/expansion/ann_expanded"
 
 #
 #converts data from the cvat xml format to a list
@@ -93,24 +104,26 @@ if create_images:
 #TODO: fix if needed
 if create_duplicates:
     for i in range(duplicates):
-        rand = np.random.randint(0, len(data))
-        img = np.zeros((int(data[rand][1][1]), int(data[rand][1][0])), np.uint8)
-        img2 = cv2.imread(find(data[rand][0], 'Dataset'))
-        for x in data[rand][2]:
-            img = cv2.ellipse(img, (int(x[0]), int(x[1])), (int(x[2]/const), int(x[3]/const)), 0, 0, 360, 255, -1)
+        list_img=os.listdir(img_filepath_train)
         
-    #needed if the rotation metadata is squed
-        if int(data[rand][1][1])==4000:
-            #rotate the image
-            img = cv2.rotate(img, cv2.ROTATE_90_COUNTERCLOCKWISE)
+        rand = np.random.randint(0, len(list_img))
+        
+        img = cv2.imread(find('ann_'+list_img[rand], ann_filepath))
+        img2 = cv2.imread(find(list_img[rand], img_filepath_train))
 
         #zoom and rotate the image
-        scale = np.random.uniform(1, 1.5)
-        angle = np.random.uniform(0, 360)
+        if change_size:
+            scale = np.random.uniform(0.6, 1.9)
+        else:
+            scale = 1
+        
+        if change_rotation:
+            angle = np.random.uniform(0, 360)
+        else:
+            angle = 0
         
         center = (img.shape[1]//2, img.shape[0]//2)
         M = cv2.getRotationMatrix2D(center, angle, scale)
-        
         img = cv2.warpAffine(img, M, (img.shape[1], img.shape[0]))
         img2 = cv2.warpAffine(img2, M, (img2.shape[1], img2.shape[0]))
         
@@ -120,7 +133,10 @@ if create_duplicates:
             im1 = plt.imshow(img, cmap=plt.cm.gray, alpha=0.5)
             plt.title(data[rand][0:2])
             plt.show()
+        
         #random ID
         Id = np.random.randint(0, 1000000)
-        cv2.imwrite('Dataset/ann2/'+f'ann_{Id}_'+str(i)+data[rand][0], img)
-        cv2.imwrite('Dataset/data2/'+f'{Id}_'+str(i)+data[rand][0], img2)
+        
+        if save_duplicates:
+            cv2.imwrite(exp_ann+f'/ann_{Id}_'+str(i)+data[rand][0], img)
+            cv2.imwrite(exp_train+f'/{Id}_'+str(i)+data[rand][0], img2)

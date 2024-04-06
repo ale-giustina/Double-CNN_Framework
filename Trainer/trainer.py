@@ -10,13 +10,13 @@ import os
 import cv2
 import matplotlib.pyplot as plt
 
-writer = SummaryWriter()
+
 
 device=torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 print(device)
 
-batch_size = 7
-showexample = 6
+batch_size = 10
+showexample = 0
 
 imsize = (720,1280)
 
@@ -24,7 +24,7 @@ transform = T.Compose([T.Resize(imsize,antialias=True)])
 
 transform1 = T.Compose([T.Resize(imsize,antialias=True)])
 
-dataset = m1.CustomImageDataset("Dataset/annotated", "Dataset/Train",transform=transform, target_transform=transform1)
+dataset = m1.CustomImageDataset("Dataset/expansion/ann_expanded", "Dataset/expansion/train_expanded",transform=transform, target_transform=transform1)
 
 validataset = m1.CustomImageDataset("Dataset/annotated", "Dataset/Val",transform=transform, target_transform=transform1)
 
@@ -34,7 +34,7 @@ validataloader = DataLoader(dataset=validataset,shuffle=True,batch_size=batch_si
 
 print("Datasets created! starting training...")
 
-if showexample != 0:
+if showexample != 1:
 
     image1 = np.transpose(dataset.__getitem__(showexample)[0], (1, 2, 0))
     label1 = np.transpose(dataset.__getitem__(showexample)[1], (1, 2, 0))
@@ -52,7 +52,7 @@ if showexample != 0:
 
     plt.show()
 
-
+writer = SummaryWriter()
 model = m1.CNNet()
 
 model.to(device)
@@ -104,11 +104,11 @@ def train(epochs):
                 # Calculate Accuracy
                 model.eval()
 
-                validation_loss = m1.calculate_loss_and_accuracy(validataloader, model, criterion, validataset.__getitem__(5),model.totalepoch)
+                validation_loss = m1.calculate_loss_and_accuracy(validataloader, model, criterion, validataset.__getitem__(showexample),model.totalepoch)
                 writer.add_scalar('validation_loss', validation_loss, model.steps)
 
                 # Print Loss
-                print('Iteration: {}/{} - ({:.2f}%). Validation Loss: {}. '.format(step, total_size, step*100/total_size , validation_loss))
+                print('Epoch: {}/{} - ({:.2f}%). Validation Loss: {}. '.format(epoch, epochs, epoch*100/epochs , validation_loss))
                 
                 if validation_loss < model.best_valdiation_loss:
                     model.best_valdiation_loss = validation_loss
@@ -131,10 +131,13 @@ with open('examples/log.txt', 'w') as f:
 
 learning_rate = 0.1
 optimizer = torch.optim.SGD(model.parameters(), lr=learning_rate, momentum=0.9)
-train(70)
+train(30)
 learning_rate = 0.03
 optimizer = torch.optim.SGD(model.parameters(), lr=learning_rate, momentum=0.9)
-train(70)
-learning_rate = 0.001
+train(35)
+learning_rate = 0.003
 optimizer = torch.optim.SGD(model.parameters(), lr=learning_rate, momentum=0.9)
-train(50)
+train(30)
+learning_rate = 0.0001
+optimizer = torch.optim.SGD(model.parameters(), lr=learning_rate, momentum=0.9)
+train(30)

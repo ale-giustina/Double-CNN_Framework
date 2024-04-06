@@ -3,7 +3,7 @@ import torch.nn as nn
 import torch.nn.functional as F
 import numpy as np
 from torch.utils.data import Dataset, DataLoader
-from torchvision.io import read_image
+from torchvision.io import read_image, ImageReadMode
 import math
 import time
 import os
@@ -24,7 +24,7 @@ class CustomImageDataset(Dataset):
         img_path = os.path.join(self.img_dir, self.imlist[idx])
         image = read_image(img_path).type(torch.float)
         label_path = os.path.join(self.labels_dir, "ann_"+self.imlist[idx])
-        label = read_image(label_path).type(torch.float)
+        label = read_image(label_path,ImageReadMode.GRAY).type(torch.float)
         #convert image and label to float
         image = image/255
         label = (label-255/2)/(255/2)
@@ -42,11 +42,11 @@ class CNNet(nn.Module):
     def __init__(self):
         super(CNNet, self).__init__()
                 
-        self.conv1 = nn.Conv2d(3, 10, kernel_size=11, stride=1, padding=5)
+        self.conv1 = nn.Conv2d(3, 12, kernel_size=7, stride=1, padding=3)
         self.relu1 = nn.LeakyReLU(inplace=True)
-        self.conv2 = nn.Conv2d(10, 25, kernel_size=9, stride=1, padding=4)
+        self.conv2 = nn.Conv2d(12, 23, kernel_size=9, stride=1, padding=4)
         self.relu2 = nn.LeakyReLU(inplace=True)
-        self.conv3 = nn.Conv2d(25, 15, kernel_size=5, stride=1, padding=2)
+        self.conv3 = nn.Conv2d(23, 15, kernel_size=5, stride=1, padding=2)
         self.relu3 = nn.LeakyReLU(inplace=True)
         self.conv4 = nn.Conv2d(15, 1, kernel_size=1, stride=1)
         self.relu4 = nn.LeakyReLU(inplace=True)
@@ -55,11 +55,11 @@ class CNNet(nn.Module):
         self.epochs = 0
         self.best_valdiation_loss = math.inf
         self.totalepoch = 0
-        self.charateristics = "self.conv1 = nn.Conv2d(3, 10, kernel_size=11, stride=1, padding=5)\n\
+        self.charateristics = "self.conv1 = nn.Conv2d(3, 10, kernel_size=7, stride=1, padding=3)\n\
         self.relu1 = nn.LeakyReLU(inplace=True)\n\
-        self.conv2 = nn.Conv2d(10, 25, kernel_size=9, stride=1, padding=4)\n\
+        self.conv2 = nn.Conv2d(10, 20, kernel_size=9, stride=1, padding=4)\n\
         self.relu2 = nn.LeakyReLU(inplace=True)\n\
-        self.conv3 = nn.Conv2d(25, 15, kernel_size=5, stride=1, padding=2)\n\
+        self.conv3 = nn.Conv2d(20, 15, kernel_size=5, stride=1, padding=2)\n\
         self.relu3 = nn.LeakyReLU(inplace=True)\n\
         self.conv4 = nn.Conv2d(15, 1, kernel_size=1, stride=1)\n\
         self.relu4 = nn.LeakyReLU(inplace=True)\n\

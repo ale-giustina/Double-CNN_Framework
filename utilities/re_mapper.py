@@ -1,1 +1,0 @@
-#needed to correct the xml file to account for rotated images

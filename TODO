@@ -1,3 +1,2 @@
 - Play with labels normalization (with values <1).
-- Fix Annotator_converter duplicate image if it is needed
-- Create new datapoints by transforming the original data.
+- Add more diversity to the image duplicator by adding more transformations.
