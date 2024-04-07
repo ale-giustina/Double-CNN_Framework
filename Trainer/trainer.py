@@ -15,8 +15,9 @@ import matplotlib.pyplot as plt
 device=torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 print(device)
 
-batch_size = 10
+batch_size = 15
 showexample = 0
+showdataset = 0
 
 imsize = (720,1280)
 
@@ -33,6 +34,20 @@ dataloader = DataLoader(dataset=dataset,shuffle=True,batch_size=batch_size)
 validataloader = DataLoader(dataset=validataset,shuffle=True,batch_size=batch_size)
 
 print("Datasets created! starting training...")
+
+if showdataset == 1:
+    for i in range(len(dataset)):
+        image1 = np.transpose(dataset.__getitem__(i)[0], (1, 2, 0))
+        label1 = np.transpose(dataset.__getitem__(i)[1], (1, 2, 0))
+        fig, axs = plt.subplots(1, 2)  # 1 row, 2 columns
+
+        axs[0].imshow(image1)
+        axs[0].set_title('Image 1')
+
+        axs[1].imshow(label1)
+        axs[1].set_title('Label 1')
+
+        plt.show()
 
 if showexample != 1:
 
@@ -131,13 +146,13 @@ with open('examples/log.txt', 'w') as f:
 
 learning_rate = 0.1
 optimizer = torch.optim.SGD(model.parameters(), lr=learning_rate, momentum=0.9)
-train(30)
-learning_rate = 0.03
+train(35)
+learning_rate = 0.02
 optimizer = torch.optim.SGD(model.parameters(), lr=learning_rate, momentum=0.9)
 train(35)
 learning_rate = 0.003
 optimizer = torch.optim.SGD(model.parameters(), lr=learning_rate, momentum=0.9)
-train(30)
+train(20)
 learning_rate = 0.0001
 optimizer = torch.optim.SGD(model.parameters(), lr=learning_rate, momentum=0.9)
-train(30)
+train(20)

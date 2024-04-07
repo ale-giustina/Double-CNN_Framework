@@ -29,7 +29,7 @@ show_images = False
 
 create_duplicates = True
 
-duplicates = 500
+duplicates = 1500
 
 show_duplicates = False
 
@@ -37,8 +37,8 @@ save_duplicates = True
 
 change_size = True
 change_rotation = True
-change_luminosity = False   #TODO:implement
-change_contrast = False     #TODO:implement
+change_luminosity = True
+change_contrast = True
 
 exp_train = "Dataset/expansion/train_expanded"
 
@@ -101,7 +101,6 @@ if create_images:
         cv2.imwrite(img_filepath_train+'/1'+i[0], img2)
 
 
-#TODO: fix if needed
 if create_duplicates:
     for i in range(duplicates):
         list_img=os.listdir(img_filepath_train)
@@ -113,7 +112,7 @@ if create_duplicates:
 
         #zoom and rotate the image
         if change_size:
-            scale = np.random.uniform(0.6, 1.9)
+            scale = np.random.uniform(0.85, 1.4)
         else:
             scale = 1
         
@@ -122,6 +121,13 @@ if create_duplicates:
         else:
             angle = 0
         
+        if change_luminosity:
+            randoo = np.random.uniform(0.8, 1.4)
+            img2 = cv2.convertScaleAbs(img2, alpha=randoo, beta=0)
+        if change_contrast:
+            randoo = np.random.uniform(-0.5, 0.5)
+            img2 = cv2.convertScaleAbs(img2, alpha=1, beta=randoo)
+
         center = (img.shape[1]//2, img.shape[0]//2)
         M = cv2.getRotationMatrix2D(center, angle, scale)
         img = cv2.warpAffine(img, M, (img.shape[1], img.shape[0]))

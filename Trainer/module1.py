@@ -36,20 +36,20 @@ class CustomImageDataset(Dataset):
 
         return image, label #convert to float from unit8
 
-#TODO: NORMALIZE THE DATAAAAAAAAAAAAAAAAA
-
 class CNNet(nn.Module):
     def __init__(self):
         super(CNNet, self).__init__()
                 
-        self.conv1 = nn.Conv2d(3, 12, kernel_size=7, stride=1, padding=3)
+        self.conv1 = nn.Conv2d(3, 10, kernel_size=7, stride=1, padding=3)
         self.relu1 = nn.LeakyReLU(inplace=True)
-        self.conv2 = nn.Conv2d(12, 23, kernel_size=9, stride=1, padding=4)
+        self.conv2 = nn.Conv2d(10, 20, kernel_size=9, stride=1, padding=4)
         self.relu2 = nn.LeakyReLU(inplace=True)
-        self.conv3 = nn.Conv2d(23, 15, kernel_size=5, stride=1, padding=2)
+        self.conv3 = nn.Conv2d(20, 20, kernel_size=5, stride=1, padding=2)
         self.relu3 = nn.LeakyReLU(inplace=True)
-        self.conv4 = nn.Conv2d(15, 1, kernel_size=1, stride=1)
+        self.conv4 = nn.Conv2d(20, 15, kernel_size=3, stride=1, padding=1)
         self.relu4 = nn.LeakyReLU(inplace=True)
+        self.conv5 = nn.Conv2d(15, 1, kernel_size=1, stride=1)
+        self.relu5 = nn.LeakyReLU(inplace=True)
         
         self.steps = 0
         self.epochs = 0
@@ -59,10 +59,12 @@ class CNNet(nn.Module):
         self.relu1 = nn.LeakyReLU(inplace=True)\n\
         self.conv2 = nn.Conv2d(10, 20, kernel_size=9, stride=1, padding=4)\n\
         self.relu2 = nn.LeakyReLU(inplace=True)\n\
-        self.conv3 = nn.Conv2d(20, 15, kernel_size=5, stride=1, padding=2)\n\
+        self.conv3 = nn.Conv2d(20, 20, kernel_size=5, stride=1, padding=2)\n\
         self.relu3 = nn.LeakyReLU(inplace=True)\n\
-        self.conv4 = nn.Conv2d(15, 1, kernel_size=1, stride=1)\n\
+        self.conv4 = nn.Conv2d(20, 15, kernel_size=3, stride=1, padding=1)\n\
         self.relu4 = nn.LeakyReLU(inplace=True)\n\
+        self.conv5 = nn.Conv2d(15, 1, kernel_size=1, stride=1)\n\
+        self.relu5 = nn.LeakyReLU(inplace=True)\n\
         radius_constant = 1    "
 
         
@@ -74,7 +76,9 @@ class CNNet(nn.Module):
         x = self.conv3(x)
         x = self.relu3(x)
         x = self.conv4(x)
-        density_map = self.relu4(x)
+        x = self.relu4(x)
+        x = self.conv5(x)
+        density_map = self.relu5(x)
                 
         if self.training:
             self.steps += 1
