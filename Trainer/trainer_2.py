@@ -19,15 +19,11 @@ batch_size = 15
 showexample = 0
 showdataset = 0
 
-imsize = (720,1280)
+imsize = (200,200)
 
-transform = T.Compose([T.Resize(imsize,antialias=True)])
+dataset = m1.CustomImageDataset_letters("Dataset/Letter_dataset/Ann.csv", "Dataset/Letter_dataset/Train")
 
-transform1 = T.Compose([T.Resize(imsize,antialias=True)])
-
-dataset = m1.CustomImageDataset("Dataset/expansion/ann_expanded", "Dataset/expansion/train_expanded",transform=transform, target_transform=transform1)
-
-validataset = m1.CustomImageDataset("Dataset/annotated", "Dataset/Val",transform=transform, target_transform=transform1)
+validataset = m1.CustomImageDataset_letters("Dataset/annotated", "Dataset/Val")
 
 dataloader = DataLoader(dataset=dataset,shuffle=True,batch_size=batch_size)
 
@@ -38,34 +34,22 @@ print("Datasets created! starting training...")
 if showdataset == 1:
     for i in range(len(dataset)):
         image1 = np.transpose(dataset.__getitem__(i)[0], (1, 2, 0))
-        label1 = np.transpose(dataset.__getitem__(i)[1], (1, 2, 0))
-        fig, axs = plt.subplots(1, 2)  # 1 row, 2 columns
-
-        axs[0].imshow(image1)
-        axs[0].set_title('Image 1')
-
-        axs[1].imshow(label1)
-        axs[1].set_title('Label 1')
-
+        plt.imshow(image1)
+        plt.title(dataset.__getitem__(i)[1])
         plt.show()
 
 if showexample != 1:
 
     image1 = np.transpose(dataset.__getitem__(showexample)[0], (1, 2, 0))
-    label1 = np.transpose(dataset.__getitem__(showexample)[1], (1, 2, 0))
-    for i in range(1):
-        print("Image:",dataset.__getitem__(showexample)[i].shape,"maxval:",np.max(dataset.__getitem__(showexample)[i].detach().numpy()),"minval:",np.min(dataset.__getitem__(showexample)[0].detach().numpy()))
 
+    print("Image:",dataset.__getitem__(showexample)[0].shape,"maxval:",np.max(dataset.__getitem__(showexample)[0].detach().numpy()),"minval:",np.min(dataset.__getitem__(showexample)[0].detach().numpy()))
 
-    fig, axs = plt.subplots(1, 2)  # 1 row, 2 columns
-
-    axs[0].imshow(image1)
-    axs[0].set_title('Image 1')
-
-    axs[1].imshow(label1)
-    axs[1].set_title('Label 1')
+    plt.imshow(image1)
+    plt.title(dataset.__getitem__(i)[1])
+    plt.show()
 
     plt.show()
+
 
 writer = SummaryWriter()
 model = m1.CNNet()
