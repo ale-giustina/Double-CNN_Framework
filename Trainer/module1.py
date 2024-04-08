@@ -8,6 +8,7 @@ import math
 import time
 import os
 import matplotlib.pyplot as plt
+import pandas as pd
 
 class CustomImageDataset(Dataset):
     def __init__(self, annotations_dir, img_dir, transform=None, target_transform=None):
@@ -48,13 +49,15 @@ class CustomImageDataset_letters(Dataset):
 
     def __getitem__(self, idx):
         img_path = os.path.join(self.img_dir, self.img_labels.iloc[idx, 0])
-        image = read_image(img_path)
+        image = read_image(img_path).type(torch.float)
         label = self.img_labels.iloc[idx, 1]
         if self.transform:
             image = self.transform(image)
         if self.target_transform:
             label = self.target_transform(label)
         
+        image = image/255
+
         match label:
                 case "A":
                     label = [1,0,0,0]
@@ -62,9 +65,11 @@ class CustomImageDataset_letters(Dataset):
                     label = [0,1,0,0]
                 case "C":
                     label = [0,0,1,0]
+                case "N":
+                    label = [0,0,0,1]
 
-        label = torch.tensor(label)
-        
+        label = torch.tensor(label).type(torch.float)
+
         return image, label
 
 
@@ -119,6 +124,56 @@ class CNNet(nn.Module):
 
 
 
+class CNNet2(nn.Module):
+    def __init__(self):
+        super(CNNet2, self).__init__()
+                
+        self.conv1 = nn.Conv2d(3, 10, kernel_size=3, stride=1, padding=1)
+        self.relu1 = nn.LeakyReLU(inplace=True)
+        self.conv2 = nn.Conv2d(10, 10, kernel_size=3, stride=1, padding=1)
+        self.relu2 = nn.LeakyReLU(inplace=True)
+        self.conv3 = nn.Conv2d(10, 1, kernel_size=1, stride=1)
+        self.relu3 = nn.LeakyReLU(inplace=True)
+        self.view = nn.Flatten()
+        self.linear = nn.Linear(200*200, 60)
+        self.relu4 = nn.LeakyReLU(inplace=True)
+        self.linear2 = nn.Linear(60, 4)
+        self.relu5 = nn.LeakyReLU(inplace=True)
+        
+        self.steps = 0
+        self.epochs = 0
+        self.best_valdiation_loss = math.inf
+        self.totalepoch = 0
+        self.charateristics = "self.conv1 = nn.Conv2d(3, 10, kernel_size=7, stride=1, padding=3)\n\
+        self.relu1 = nn.LeakyReLU(inplace=True)\n\
+        self.conv2 = nn.Conv2d(10, 20, kernel_size=9, stride=1, padding=4)\n\
+        self.relu2 = nn.LeakyReLU(inplace=True)\n\
+        self.conv3 = nn.Conv2d(20, 20, kernel_size=5, stride=1, padding=2)\n\
+        self.relu3 = nn.LeakyReLU(inplace=True)\n\
+        self.conv4 = nn.Conv2d(20, 15, kernel_size=3, stride=1, padding=1)\n\
+        self.relu4 = nn.LeakyReLU(inplace=True)\n\
+        self.conv5 = nn.Conv2d(15, 1, kernel_size=1, stride=1)\n\
+        self.relu5 = nn.LeakyReLU(inplace=True)\n\
+        radius_constant = 1    "
+
+        
+    def forward(self, x):
+        x = self.conv1(x)
+        x = self.relu1(x)
+        x = self.conv2(x)
+        x = self.relu2(x)
+        x = self.conv3(x)
+        x = self.relu3(x)
+        x = self.view(x)
+        x = self.linear(x)
+        x = self.relu4(x)
+        x = self.linear2(x)
+        x = self.relu5(x)
+                
+        if self.training:
+            self.steps += 1
+                
+        return x
 
 def calculate_loss_and_accuracy(validation_loader, model, criterion,example_image,epoch):
     

@@ -23,7 +23,7 @@ imsize = (200,200)
 
 dataset = m1.CustomImageDataset_letters("Dataset/Letter_dataset/Ann.csv", "Dataset/Letter_dataset/Train")
 
-validataset = m1.CustomImageDataset_letters("Dataset/annotated", "Dataset/Val")
+validataset = m1.CustomImageDataset_letters("Dataset/Letter_dataset/Ann.csv", "Dataset/Letter_dataset/Val")
 
 dataloader = DataLoader(dataset=dataset,shuffle=True,batch_size=batch_size)
 
@@ -45,14 +45,14 @@ if showexample != 1:
     print("Image:",dataset.__getitem__(showexample)[0].shape,"maxval:",np.max(dataset.__getitem__(showexample)[0].detach().numpy()),"minval:",np.min(dataset.__getitem__(showexample)[0].detach().numpy()))
 
     plt.imshow(image1)
-    plt.title(dataset.__getitem__(i)[1])
+    plt.title(dataset.__getitem__(showexample)[1])
     plt.show()
 
     plt.show()
 
 
 writer = SummaryWriter()
-model = m1.CNNet()
+model = m1.CNNet2()
 
 model.to(device)
 
@@ -67,7 +67,7 @@ steps_before_print = len(dataloader)
 
 lis, labels = next(dataiter)
 
-writer.add_graph(model, lis.to(device))
+#writer.add_graph(model, lis.to(device))
 
 def train(epochs):
 

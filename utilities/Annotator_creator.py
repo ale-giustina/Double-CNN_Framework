@@ -28,6 +28,8 @@ show_images = False
 
 duplicate = 4
 
+ex_per_image = 4
+
 #
 #converts data from the cvat xml format to a list
 #
@@ -63,14 +65,35 @@ label_file = open(csv_filepath, 'w')
 
 #creates the images
 
+size_final = 200
+
 for i in data:
+    
+    #create empty examples
+
+    img = cv2.imread(find(i[0], img_filepath))
+    img2 = np.zeros((int(i[1][1]), int(i[1][0]),3), np.uint8)
+    for x in i[2]:
+        img2 = cv2.ellipse(img2, (int(x[0]), int(x[1])), (int(x[2]), int(x[3])), 0, 0, 360, (255,255,255), -1)
+
+    img = np.maximum(img, img2)
+
+    for x in range(ex_per_image):
+        edge_x = np.random.randint(200, img.shape[1]-size_final)
+        edge_y = np.random.randint(200, img.shape[0]-size_final)
+        save = img[edge_y:edge_y+size_final, edge_x:edge_x+size_final]
+        
+        Id = np.random.randint(0, 1000000)
+        cv2.imwrite(img_filepath_train+'/'+"N_"+str(Id)+"_"+str(x)+i[0], save)
+        label_file.write("N_"+str(Id)+"_"+str(x)+i[0] + "," + "N" + "\n")
+
     for x in i[2]:
         
         img = cv2.imread(find(i[0], img_filepath))
         
         center = [int(x[0]), int(x[1])]
 
-        adding = np.random.randint(13, 35)
+        adding = np.random.randint(10, 46)
 
         size = int((x[2]+x[3])/2)+adding
 
@@ -80,9 +103,7 @@ for i in data:
 
             #resize the image
 
-            size = 200
-
-            img = cv2.resize(img, (size, size))
+            img = cv2.resize(img, (size_final, size_final))
 
             label = [0,0,0,0]
 
@@ -112,8 +133,8 @@ for i in data:
                     img3 = cv2.convertScaleAbs(img2, alpha=randoo, beta=0)
 
                     angle = np.random.uniform(0, 360)
-                    M = cv2.getRotationMatrix2D((size/2,size/2), angle, 1)
-                    img4 = cv2.warpAffine(img3, M, (size,size))
+                    M = cv2.getRotationMatrix2D((size_final/2,size_final/2), angle, 1)
+                    img4 = cv2.warpAffine(img3, M, (size_final,size_final))
 
                     cv2.imwrite(img_filepath_train+'/'+str(str(x[4])+"_"+str(Id)+i[0]), img4)
 
