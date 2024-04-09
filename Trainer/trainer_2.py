@@ -15,7 +15,7 @@ import matplotlib.pyplot as plt
 device=torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 print(device)
 
-batch_size = 15
+batch_size = 100
 showexample = 0
 showdataset = 0
 
@@ -67,7 +67,7 @@ steps_before_print = len(dataloader)
 
 lis, labels = next(dataiter)
 
-#writer.add_graph(model, lis.to(device))
+writer.add_graph(model, lis.to(device))
 
 def train(epochs):
 
@@ -103,11 +103,11 @@ def train(epochs):
                 # Calculate Accuracy
                 model.eval()
 
-                validation_loss = m1.calculate_loss_and_accuracy(validataloader, model, criterion, validataset.__getitem__(showexample),model.totalepoch)
+                validation_loss , accuracy = m1.calculate_loss_and_accuracy_letters(validataloader, model, criterion, validataset.__getitem__(showexample),model.totalepoch)
                 writer.add_scalar('validation_loss', validation_loss, model.steps)
 
                 # Print Loss
-                print('Epoch: {}/{} - ({:.2f}%). Validation Loss: {}. '.format(epoch, epochs, epoch*100/epochs , validation_loss))
+                print('Epoch: {}/{} - ({:.2f}%). Validation Loss: {}.  acc: {}'.format(epoch, epochs, epoch*100/epochs , validation_loss, accuracy))
                 
                 if validation_loss < model.best_valdiation_loss:
                     model.best_valdiation_loss = validation_loss
@@ -128,7 +128,7 @@ def train(epochs):
 with open('examples/log.txt', 'w') as f:
     f.write(str(model.charateristics))
 
-learning_rate = 0.1
+learning_rate = 0.01
 optimizer = torch.optim.SGD(model.parameters(), lr=learning_rate, momentum=0.9)
 train(35)
 learning_rate = 0.02
