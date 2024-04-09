@@ -26,9 +26,9 @@ csv_filepath = 'Dataset/Letter_dataset/Ann.csv'
 
 show_images = False
 
-duplicate = 4
+duplicate = 7
 
-ex_per_image = 4
+ex_per_image = 5
 
 #
 #converts data from the cvat xml format to a list
@@ -91,11 +91,16 @@ for i in data:
         
         img = cv2.imread(find(i[0], img_filepath))
         
-        center = [int(x[0]), int(x[1])]
-
         adding = np.random.randint(10, 46)
 
         size = int((x[2]+x[3])/2)+adding
+
+        skew = np.random.randint(-10, 20)
+
+        #add padding to the image
+        img = cv2.copyMakeBorder(img, abs(skew)//2, abs(skew)//2, abs(skew)//2, abs(skew)//2, cv2.BORDER_CONSTANT, value=[0,0,0])
+
+        center = [int(x[0])+skew, int(x[1])+skew]
 
         img = img[center[1]-size:center[1]+size, center[0]-size:center[0]+size]
 

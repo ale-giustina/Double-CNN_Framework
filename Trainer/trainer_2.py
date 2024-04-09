@@ -10,8 +10,6 @@ import os
 import cv2
 import matplotlib.pyplot as plt
 
-
-
 device=torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 print(device)
 
@@ -128,9 +126,15 @@ def train(epochs):
 with open('examples/log.txt', 'w') as f:
     f.write(str(model.charateristics))
 
+learning_rate = 0.03
+optimizer = torch.optim.SGD(model.parameters(), lr=learning_rate, momentum=0.9)
+train(5)
 learning_rate = 0.01
 optimizer = torch.optim.SGD(model.parameters(), lr=learning_rate, momentum=0.9)
-train(35)
+train(45)
 learning_rate = 0.002
 optimizer = torch.optim.SGD(model.parameters(), lr=learning_rate, momentum=0.9)
-train(40)
+train(45)
+learning_rate = 0.0002
+optimizer = torch.optim.SGD(model.parameters(), lr=learning_rate, momentum=0.9)
+train(20)
