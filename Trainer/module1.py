@@ -145,7 +145,7 @@ class CNNet2(nn.Module):
         
         self.steps = 0
         self.epochs = 0
-        self.best_valdiation_loss = math.inf
+        self.best_acc = 0
         self.totalepoch = 0
         self.charateristics = "self.conv1 = nn.Conv2d(3, 10, kernel_size=3, stride=1, padding=1)\n\
         self.relu1 = nn.LeakyReLU(inplace=True)\n\
@@ -333,11 +333,11 @@ def calculate_loss_and_accuracy_letters(validation_loader, model, criterion,exam
     return total_loss/steps , correct/total
 
 
-def save_model(model, use_ts=False,curr_folder='./mdl'):
+def save_model(model, use_ts=False,curr_folder='./mdl',add=""):
     if not os.path.exists(curr_folder):
         os.makedirs(curr_folder) 
     if use_ts:
         time_stamp = time.strftime("%d_%b_%Y_%Hh%Mm", time.gmtime())
         torch.save(model, curr_folder + '/{}.ckp'.format(time_stamp))        #model.state_dict()
     else:
-        torch.save(model, curr_folder + '/{}.ckp'.format('best_model'))        #model.state_dict()
+        torch.save(model, curr_folder + '/{}_{}.ckp'.format('best_model',round(add,3)))        #model.state_dict()
