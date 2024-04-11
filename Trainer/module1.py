@@ -9,6 +9,7 @@ import time
 import os
 import matplotlib.pyplot as plt
 import pandas as pd
+import copy
 
 class CustomImageDataset(Dataset):
     def __init__(self, annotations_dir, img_dir, transform=None, target_transform=None):
@@ -338,6 +339,6 @@ def save_model(model, use_ts=False,curr_folder='./mdl',add=""):
         os.makedirs(curr_folder) 
     if use_ts:
         time_stamp = time.strftime("%d_%b_%Y_%Hh%Mm", time.gmtime())
-        torch.save(model, curr_folder + '/{}.ckp'.format(time_stamp))        #model.state_dict()
+        torch.save(model.state_dict(), curr_folder + '/{}.ckp'.format(time_stamp))        #model.state_dict()
     else:
-        torch.save(model, curr_folder + '/{}_{}.ckp'.format('best_model',round(add,3)))        #model.state_dict()
+        torch.save(copy.deepcopy(model.state_dict()), curr_folder + '/{}_{}state_dict.ckp'.format('best_model',round(add,3)))        #model.state_dict()
